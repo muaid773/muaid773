@@ -17,17 +17,27 @@ I'm a passionate programmer and electronics enthusiast. I work with Python, web 
 
 ## 💻 Projects
 
-### Python & Web
-- **Chat App** - Built with Flask-SocketIO for real-time messaging.  
-- **Portfolio Website** - HTML, CSS, JavaScript frontend project.  
+### Python Projects 🐍
+- **Quizer** - FastAPI-based quiz platform for managing users, quizzes, questions, and rewards. Features JWT authentication, gamified stars & gems system.  
+- **chatwebsite** - Simple chat application built with Python.  
+- **Database Management System** - Built with Python & Tkinter. Simple CRUD app with graphical interface for small-scale projects.  
+- **School-Management-System** *(Partial Python backend if any)* 
 
-### Desktop Apps
-- **GUI Apps** - Using Tkinter & Kivy, small utilities and interactive apps.  
+### JavaScript Projects 🌐
+- **Quizer-Frontend** - User-facing frontend for Quizer platform, interactive interface for quizzes and exams.  
 
-### APIs & Backend
-- **FastAPI Projects** - Simple APIs for learning and small tools.  
+### CSS Projects 🎨
+- **School-Management-System (Frontend)** - CSS for layout and styling (part of the same project).
 
-> ⚠️ Note: Familiar with frameworks and libraries, still learning advanced features.  
+---
+
+### 📊 Projects Summary
+
+| Language / Tech | Projects |
+|-----------------|----------|
+| Python 🐍       | 5        |
+| JavaScript 🌐   | 1        |
+| CSS 🎨          | 1        |
 
 ---
 
