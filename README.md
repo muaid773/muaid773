@@ -6,12 +6,12 @@ I'm a passionate programmer and electronics enthusiast. I work with Python, web 
 
 ## 🛠️ Languages & Skills
 
-| Language / Technology | Level / Experience | Projects |
-|----------------------|-----------------|---------|
-| Python 🐍            | Intermediate / Practical projects with FastAPI, Flask, Tkinter, Kivy, SocketIO | 6+ |
-| JavaScript (Web) 🌐  | Intermediate / Frontend, Web interactions | 4+ |
-| HTML5 & CSS3         | Intermediate / Web design and layouts | 4+ |
-| C++                   | Basics / Learning foundation | 2+ |
+| Language / Technology | Level / Experience |
+|----------------------|-----------------|
+| Python 🐍            | Intermediate / Practical projects with FastAPI, Flask, Tkinter, Kivy, SocketIO |
+| JavaScript (Web) 🌐  | Intermediate / Frontend, Web interactions |
+| HTML5 & CSS3         | Intermediate / Web design and layouts |
+| C++                   | Basics / Learning foundation |
 
 ---
 
@@ -34,6 +34,7 @@ I'm a passionate programmer and electronics enthusiast. I work with Python, web 
 ## 📊 GitHub Stats
 
 ![Muaid's GitHub Stats](https://github-readme-stats.vercel.app/api?username=muaid773&show_icons=true&theme=radical)
+![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=muaid773&layout=compact&theme=radical)
 
 ---
 
