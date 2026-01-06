@@ -36,9 +36,4 @@ I'm a passionate programmer and electronics enthusiast. I work with Python, web 
 ![Muaid's GitHub Stats](https://github-readme-stats.vercel.app/api?username=muaid773&show_icons=true&theme=radical)
 ![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=muaid773&layout=compact&theme=radical)
 
----
 
-## 📫 Contact Me
-
-- [LinkedIn](https://www.linkedin.com/in/your-linkedin/)  
-- [Email](mailto:your-email@example.com)  
