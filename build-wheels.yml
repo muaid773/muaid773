@@ -1,4 +1,4 @@
-name: Build Wheels for Termux Python 3.13
+name: New 3 Build Wheels for Termux Python 3.13
 
 on:
   workflow_dispatch:
@@ -38,10 +38,7 @@ jobs:
             
             echo "Entering $pkg_dir"
             cd "$pkg_dir"
-            
-            # Specify python interpreter explicitly for maturin
             maturin build --release --target aarch64-linux-android -i python
-            
             cd ..
           done
 
