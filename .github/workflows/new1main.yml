@@ -33,13 +33,15 @@ jobs:
             echo "Building $pkg"
             pip download --no-deps --no-binary=:all: $pkg
             
-            # Extract tar.gz and get the extracted folder name
             tar xzf *.tar.gz
             pkg_dir=$(ls -d */ | head -n1)
             
             echo "Entering $pkg_dir"
             cd "$pkg_dir"
-            maturin build --release --target aarch64-linux-android
+            
+            # Specify python interpreter explicitly for maturin
+            maturin build --release --target aarch64-linux-android -i python
+            
             cd ..
           done
 
