@@ -1,9 +1,7 @@
 name: Build bcrypt wheel for Android
 
 on:
-  workflow_dispatch: # تشغيل يدوي
-  release:
-    types: [published]
+  workflow_dispatch:
 
 jobs:
   build-android-aarch64:
@@ -11,8 +9,8 @@ jobs:
 
     env:
       ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/26.1.10909125
-      ANDROID_NDK_VERSION: 26.1.10909125
       ANDROID_API_LEVEL: 21
+      HOST: aarch64-linux-android
 
     steps:
     - uses: actions/checkout@v4
@@ -22,37 +20,35 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install Android NDK
+    - name: Verify NDK
       run: |
-        sudo apt-get update
-        sudo apt-get install -y unzip
-        wget https://dl.google.com/android/repository/android-ndk-r26.1-linux.zip
-        unzip android-ndk-r26.1-linux.zip
-        sudo mv android-ndk-r26.1 /usr/local/lib/android/sdk/ndk/${ANDROID_NDK_VERSION}
+        echo "NDK path: $ANDROID_NDK_HOME"
+        ls -la $ANDROID_NDK_HOME
+        $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --version
 
-    - name: Set up NDK environment
+    - name: Set up NDK environment variables
       run: |
         echo "CC=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang" >> $GITHUB_ENV
         echo "CXX=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang++" >> $GITHUB_ENV
         echo "AR=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar" >> $GITHUB_ENV
+        echo "RANLIB=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib" >> $GITHUB_ENV
         echo "STRIP=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip" >> $GITHUB_ENV
-        echo "HOST=aarch64-linux-android" >> $GITHUB_ENV
+        echo "CFLAGS=-fPIC -D__ANDROID_API__=${ANDROID_API_LEVEL}" >> $GITHUB_ENV
+        echo "LDFLAGS=-pie" >> $GITHUB_ENV
 
-    - name: Install build deps
+    - name: Install build dependencies
       run: |
-        python -m pip install --upgrade pip setuptools wheel setuptools-rust
+        python -m pip install --upgrade pip setuptools wheel cython
 
-    - name: Download bcrypt source
+    - name: Download and build bcrypt
       run: |
         pip download bcrypt==4.0.1 --no-deps --no-binary=:all:
-
-    - name: Build wheel
-      run: |
         tar -xzf bcrypt-4.0.1.tar.gz
         cd bcrypt-4.0.1
         python setup.py bdist_wheel
+        ls -la dist/
 
-    - name: Upload artifact
+    - name: Upload wheel artifact
       uses: actions/upload-artifact@v4
       with:
         name: bcrypt-android-aarch64
