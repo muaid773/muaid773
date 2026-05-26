@@ -1,5 +1,21 @@
-name: Build bcrypt 4.0.1 Android aarch64 (Termux Style)                                                               on:                                                          workflow_dispatch:                                                                                                  env:                                                         PACKAGE_NAME: bcrypt                                       PACKAGE_VERSION: 4.0.1                                     NDK_VERSION: '25.2.9519653'                                ANDROID_API: 24                                                                                                     permissions:                                                 contents: write                                                                                                     jobs:                                                        build:
-    name: Build arm64-v8a Py3.11                               runs-on: ubuntu-latest
+name: Build bcrypt 4.0.1 Android aarch64 (Termux Style)
+
+on:
+  workflow_dispatch:
+
+env:
+  PACKAGE_NAME: bcrypt
+  PACKAGE_VERSION: 4.0.1
+  NDK_VERSION: '25.2.9519653'
+  ANDROID_API: 24
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build arm64-v8a Py3.11
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -89,7 +105,7 @@ name: Build bcrypt 4.0.1 Android aarch64 (Termux Style)                         
           -C link-arg=-Wl,--unresolved-symbols=ignore-all \
           -C link-arg=-Wl,-rpath=/data/data/com.termux/files/usr/lib"
 
-          # بناء الـ Wheel بشكل آمن ومتوافق مع المعايير الحديثة (بدون الخيار الملغي)
+          # بناء الـ Wheel بشكل آمن ومتوافق مع المعايير الحديثة للـ Pip
           mkdir -p dist
           pip wheel . --no-deps --wheel-dir=dist/
 
@@ -99,7 +115,6 @@ name: Build bcrypt 4.0.1 Android aarch64 (Termux Style)                         
           NEW=$(echo "$OLD" | sed -E "s/(-[^-]+)\.whl$/-linux_aarch64.whl/")
           mv "$OLD" "$NEW"
           echo "WHEEL_PATH=$(pwd)/$NEW" >> $GITHUB_OUTPUT
-
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
