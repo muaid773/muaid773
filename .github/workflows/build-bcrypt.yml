@@ -1,4 +1,4 @@
-name: Build bcrypt wheel for Android aarch64
+name: Build bcrypt 4.0.1 Android aarch64 (Termux Style)
 
 on:
   workflow_dispatch:
@@ -9,14 +9,24 @@ env:
   NDK_VERSION: '25.2.9519653'
   ANDROID_API: 24
 
+permissions:
+  contents: write
+
 jobs:
   build:
-    name: Build bcrypt arm64-v8a Py3.11
+    name: Build arm64-v8a Py3.11
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Setup Rust & Targets
+        run: |
+          # تثبيت الأدوات الأساسية للبناء
+          pip install wheel setuptools setuptools-rust
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          source "$HOME/.cargo/env"
+          rustup target add aarch64-linux-android
 
       - name: Setup Python 3.11
         uses: actions/setup-python@v5
@@ -31,53 +41,83 @@ jobs:
           yes | sdkmanager "ndk;${{ env.NDK_VERSION }}" > /dev/null
           echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/${{ env.NDK_VERSION }}" >> $GITHUB_ENV
 
-      - name: Build Wheel
+      - name: Build Wheel (Termux Fix)
         id: build_step
         run: |
           set -e
-          
+          source "$HOME/.cargo/env"
+
           PY_VER="3.11"
-          ARCH="arm64-v8a"
-          CC_TARGET="aarch64-linux-android${ANDROID_API}"
+          RUST_TARGET="aarch64-linux-android"
+          CC_TARGET="aarch64-linux-android${{ env.ANDROID_API }}"
           NDK_BIN="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          NDK_SYSROOT="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
           MOCK_DIR="$(pwd)/mock_libs"
           mkdir -p "$MOCK_DIR"
           export PATH="$NDK_BIN:$PATH"
 
-          # Set compilers
+          # إعداد المترجم والـ Linker لـ Rust و C
           export CC="$NDK_BIN/${CC_TARGET}-clang"
           export CXX="$NDK_BIN/${CC_TARGET}-clang++"
           export AR="$NDK_BIN/llvm-ar"
-          export RANLIB="$NDK_BIN/llvm-ranlib"
-          export STRIP="$NDK_BIN/llvm-strip"
-          
-          # Flags needed for Android
-          export CFLAGS="-fPIC -D__ANDROID_API__=${ANDROID_API}"
-          export LDFLAGS="-pie"
+          export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$CC"
 
-          # Mock libpython so setup.py doesn't fail
-          "$CC" --target=$CC_TARGET -shared \
+          # إنشاء ملف libpython الوهمي لتخطي فحص البناء
+          "$NDK_BIN/clang" --target=$CC_TARGET -shared \
             -Wl,-soname,libpython$PY_VER.so \
             -o "$MOCK_DIR/libpython$PY_VER.so" -xc /dev/null
-          
-          export LDFLAGS="$LDFLAGS -L$MOCK_DIR"
 
-          # Download and build
+          cp $(find "$NDK_SYSROOT" -name "libdl.so" | grep "aarch64-linux-android" | head -n 1) "$MOCK_DIR/"
+
+          # إعداد الـ Sysconfig الخادع المخصص للـ Cross-Compilation
+          SYSCONFIG_NAME="_sysconfigdata__linux_${RUST_TARGET}"
+          cat > "$MOCK_DIR/${SYSCONFIG_NAME}.py" <<EOF
+          build_time_vars = {
+              'abiflags': '', 'ABIFLAGS': '', 'SO': '.so', 'SOABI': 'cpython-$PY_VER',
+              'EXT_SUFFIX': '.so', 'LIBDIR': '$MOCK_DIR', 'LDLIBRARY': 'libpython$PY_VER.so',
+              'Py_ENABLE_SHARED': 1, 'CC': 'clang', 'CXX': 'clang++', 'VERSION': '$PY_VER',
+              'LDSHARED': 'clang -shared', 'LDFLAGS': '-L$MOCK_DIR', 'CCSHARED': '-fPIC',
+              'GNULD': 'yes', 'Py_DEBUG': 0, 'WITH_PYMALLOC': 1,
+          }
+          EOF
+
+          # تحميل كود المصدر الخاص بـ bcrypt
+          mkdir -p build_src && cd build_src
           pip download "${{ env.PACKAGE_NAME }}==${{ env.PACKAGE_VERSION }}" --no-binary :all: --no-deps
-          tar -xzf ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}.tar.gz
-          cd ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}
-          
-          python setup.py bdist_wheel
-          
+          tar -xzf ${{ env.PACKAGE_NAME }}-*.tar.gz
+          cd ${{ env.PACKAGE_NAME }}-*/
+
+          # تمرير متغيرات البيئة لـ PyO3 و نظام البناء للتعرف على المنصة المستهدفة
+          export PYO3_CROSS_LIB_DIR="$MOCK_DIR"
+          export PYTHONPATH="$MOCK_DIR:$PYTHONPATH"
+          export PYO3_CROSS_PYTHON_VERSION="$PY_VER"
+          export _PYTHON_SYSCONFIGDATA_NAME="$SYSCONFIG_NAME"
+          export _PYTHON_HOST_PLATFORM="android-aarch64"
+          export CARGO_BUILD_TARGET="$RUST_TARGET"
+
+          # تمرير رايات الـ Rust الأساسية لربط مكتبة بايثون وتوجيه مسارات مساحة عمل Termux
+          export CARGO_TARGET_AARCH64_LINUX_ANDROID_RUSTFLAGS="\
+          -L native=$MOCK_DIR \
+          -C link-arg=--target=$CC_TARGET \
+          -C link-arg=-Wl,--no-as-needed \
+          -C link-arg=-lpython$PY_VER \
+          -C link-arg=-Wl,--as-needed \
+          -C link-arg=-Wl,--unresolved-symbols=ignore-all \
+          -C link-arg=-Wl,-rpath=/data/data/com.termux/files/usr/lib"
+
+          # بناء الـ Wheel عن طريق pip (بديل لـ maturin لأن bcrypt تستخدم setuptools)
+          mkdir -p dist
+          pip wheel . --no-deps --wheel-dir=dist/ --build-option="--plat-name=linux_aarch64"
+
+          # تعديل وتأكيد اسم الحزمة الناتجة لتتوافق مع معمارية أندرويد 64 بت
           cd dist
           OLD=$(ls *.whl)
           NEW=$(echo "$OLD" | sed -E "s/(-[^-]+)\.whl$/-linux_aarch64.whl/")
           mv "$OLD" "$NEW"
           echo "WHEEL_PATH=$(pwd)/$NEW" >> $GITHUB_OUTPUT
-          ls -la
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: bcrypt-android-aarch64
+          name: bcrypt-3.11-arm64-v8a
           path: ${{ steps.build_step.outputs.WHEEL_PATH }}
