@@ -1,21 +1,5 @@
-name: Build bcrypt 4.0.1 Android aarch64 (Termux Style)
-
-on:
-  workflow_dispatch:
-
-env:
-  PACKAGE_NAME: bcrypt
-  PACKAGE_VERSION: 4.0.1
-  NDK_VERSION: '25.2.9519653'
-  ANDROID_API: 24
-
-permissions:
-  contents: write
-
-jobs:
-  build:
-    name: Build arm64-v8a Py3.11
-    runs-on: ubuntu-latest
+name: Build bcrypt 4.0.1 Android aarch64 (Termux Style)                                                               on:                                                          workflow_dispatch:                                                                                                  env:                                                         PACKAGE_NAME: bcrypt                                       PACKAGE_VERSION: 4.0.1                                     NDK_VERSION: '25.2.9519653'                                ANDROID_API: 24                                                                                                     permissions:                                                 contents: write                                                                                                     jobs:                                                        build:
+    name: Build arm64-v8a Py3.11                               runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -92,7 +76,7 @@ jobs:
           export PYTHONPATH="$MOCK_DIR:$PYTHONPATH"
           export PYO3_CROSS_PYTHON_VERSION="$PY_VER"
           export _PYTHON_SYSCONFIGDATA_NAME="$SYSCONFIG_NAME"
-          export _PYTHON_HOST_PLATFORM="android-aarch64"
+          export _PYTHON_HOST_PLATFORM="linux-aarch64"
           export CARGO_BUILD_TARGET="$RUST_TARGET"
 
           # تمرير رايات الـ Rust الأساسية لربط مكتبة بايثون وتوجيه مسارات مساحة عمل Termux
@@ -105,16 +89,17 @@ jobs:
           -C link-arg=-Wl,--unresolved-symbols=ignore-all \
           -C link-arg=-Wl,-rpath=/data/data/com.termux/files/usr/lib"
 
-          # بناء الـ Wheel عن طريق pip (بديل لـ maturin لأن bcrypt تستخدم setuptools)
+          # بناء الـ Wheel بشكل آمن ومتوافق مع المعايير الحديثة (بدون الخيار الملغي)
           mkdir -p dist
-          pip wheel . --no-deps --wheel-dir=dist/ --build-option="--plat-name=linux_aarch64"
+          pip wheel . --no-deps --wheel-dir=dist/
 
-          # تعديل وتأكيد اسم الحزمة الناتجة لتتوافق مع معمارية أندرويد 64 بت
+          # تعديل وتأكيد اسم الحزمة الناتجة لتتوافق مع معمارية أندرويد 64 بت لـ Termux
           cd dist
           OLD=$(ls *.whl)
           NEW=$(echo "$OLD" | sed -E "s/(-[^-]+)\.whl$/-linux_aarch64.whl/")
           mv "$OLD" "$NEW"
           echo "WHEEL_PATH=$(pwd)/$NEW" >> $GITHUB_OUTPUT
+
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
