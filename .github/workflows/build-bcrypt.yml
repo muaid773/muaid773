@@ -1,55 +1,83 @@
-name: Build bcrypt wheel for Android
+name: Build bcrypt wheel for Android aarch64
 
 on:
   workflow_dispatch:
 
+env:
+  PACKAGE_NAME: bcrypt
+  PACKAGE_VERSION: 4.0.1
+  NDK_VERSION: '25.2.9519653'
+  ANDROID_API: 24
+
 jobs:
-  build-android-aarch64:
+  build:
+    name: Build bcrypt arm64-v8a Py3.11
     runs-on: ubuntu-latest
-
-    env:
-      ANDROID_NDK_HOME: /usr/local/lib/android/sdk/ndk/26.1.10909125
-      ANDROID_API_LEVEL: 21
-      HOST: aarch64-linux-android
-
+    
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-    - name: Verify NDK
-      run: |
-        echo "NDK path: $ANDROID_NDK_HOME"
-        ls -la $ANDROID_NDK_HOME
-        $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --version
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-    - name: Set up NDK environment variables
-      run: |
-        echo "CC=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang" >> $GITHUB_ENV
-        echo "CXX=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android${ANDROID_API_LEVEL}-clang++" >> $GITHUB_ENV
-        echo "AR=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar" >> $GITHUB_ENV
-        echo "RANLIB=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ranlib" >> $GITHUB_ENV
-        echo "STRIP=${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-strip" >> $GITHUB_ENV
-        echo "CFLAGS=-fPIC -D__ANDROID_API__=${ANDROID_API_LEVEL}" >> $GITHUB_ENV
-        echo "LDFLAGS=-pie" >> $GITHUB_ENV
+      - name: Install NDK r25b
+        run: |
+          yes | sdkmanager "ndk;${{ env.NDK_VERSION }}" > /dev/null
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/${{ env.NDK_VERSION }}" >> $GITHUB_ENV
 
-    - name: Install build dependencies
-      run: |
-        python -m pip install --upgrade pip setuptools wheel cython
+      - name: Build Wheel
+        id: build_step
+        run: |
+          set -e
+          
+          PY_VER="3.11"
+          ARCH="arm64-v8a"
+          CC_TARGET="aarch64-linux-android${ANDROID_API}"
+          NDK_BIN="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          MOCK_DIR="$(pwd)/mock_libs"
+          mkdir -p "$MOCK_DIR"
+          export PATH="$NDK_BIN:$PATH"
 
-    - name: Download and build bcrypt
-      run: |
-        pip download bcrypt==4.0.1 --no-deps --no-binary=:all:
-        tar -xzf bcrypt-4.0.1.tar.gz
-        cd bcrypt-4.0.1
-        python setup.py bdist_wheel
-        ls -la dist/
+          # Set compilers
+          export CC="$NDK_BIN/${CC_TARGET}-clang"
+          export CXX="$NDK_BIN/${CC_TARGET}-clang++"
+          export AR="$NDK_BIN/llvm-ar"
+          export RANLIB="$NDK_BIN/llvm-ranlib"
+          export STRIP="$NDK_BIN/llvm-strip"
+          
+          # Flags needed for Android
+          export CFLAGS="-fPIC -D__ANDROID_API__=${ANDROID_API}"
+          export LDFLAGS="-pie"
 
-    - name: Upload wheel artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: bcrypt-android-aarch64
-        path: bcrypt-4.0.1/dist/*.whl
+          # Mock libpython so setup.py doesn't fail
+          "$CC" --target=$CC_TARGET -shared \
+            -Wl,-soname,libpython$PY_VER.so \
+            -o "$MOCK_DIR/libpython$PY_VER.so" -xc /dev/null
+          
+          export LDFLAGS="$LDFLAGS -L$MOCK_DIR"
+
+          # Download and build
+          pip download "${{ env.PACKAGE_NAME }}==${{ env.PACKAGE_VERSION }}" --no-binary :all: --no-deps
+          tar -xzf ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}.tar.gz
+          cd ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}
+          
+          python setup.py bdist_wheel
+          
+          cd dist
+          OLD=$(ls *.whl)
+          NEW=$(echo "$OLD" | sed -E "s/(-[^-]+)\.whl$/-linux_aarch64.whl/")
+          mv "$OLD" "$NEW"
+          echo "WHEEL_PATH=$(pwd)/$NEW" >> $GITHUB_OUTPUT
+          ls -la
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bcrypt-android-aarch64
+          path: ${{ steps.build_step.outputs.WHEEL_PATH }}
