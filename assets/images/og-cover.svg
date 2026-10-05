@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f3f0e7"/>
+  <path d="M0 42H1200M0 84H1200M0 126H1200M0 168H1200M0 210H1200M0 252H1200M0 294H1200M0 336H1200M0 378H1200M0 420H1200M0 462H1200M0 504H1200M0 546H1200M0 588H1200" stroke="#47543d" stroke-opacity=".07"/>
+  <path d="M42 0V630M84 0V630M126 0V630M168 0V630M210 0V630M252 0V630M294 0V630M336 0V630M378 0V630M420 0V630M462 0V630M504 0V630M546 0V630M588 0V630M630 0V630M672 0V630M714 0V630M756 0V630M798 0V630M840 0V630M882 0V630M924 0V630M966 0V630M1008 0V630M1050 0V630M1092 0V630M1134 0V630M1176 0V630" stroke="#47543d" stroke-opacity=".07"/>
+  <path d="M70 72h36v36H70zM1094 522h36v36h-36z" fill="none" stroke="#20231f" stroke-opacity=".5"/>
+  <path d="M111 489h96" stroke="#a8d94e" stroke-width="10"/>
+  <text x="1090" y="176" text-anchor="end" fill="#676b63" font-family="monospace" font-size="22" letter-spacing="4">SOFTWARE ENGINEER / PORTFOLIO</text>
+  <text x="1090" y="281" text-anchor="end" fill="#20231f" font-family="Tahoma, sans-serif" font-size="54" font-weight="700">مؤيد علي عبدالله محمد حوات</text>
+  <text x="1090" y="365" text-anchor="end" fill="#20231f" font-family="Tahoma, sans-serif" font-size="34">أبرمج من أجل التطوير، لا من أجل تنفيذ المهمة فقط.</text>
+  <text x="1090" y="523" text-anchor="end" fill="#676b63" font-family="monospace" font-size="18" letter-spacing="3">ENGINEERING · QUALITY · PERFORMANCE</text>
+  <rect x="1090" y="112" width="42" height="5" fill="#a8d94e"/>
+</svg>

@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Portfolio projects",
+  "description": "Stable data contract for the static developer portfolio project gallery.",
+  "type": "array",
+  "items": {
+    "$ref": "#/$defs/project"
+  },
+  "$defs": {
+    "assetPath": {
+      "type": "string",
+      "pattern": "^assets/projects/[A-Za-z0-9][A-Za-z0-9._-]*/(?!.*(?:^|/)\\.\\.(?:/|$))[A-Za-z0-9][A-Za-z0-9._/-]*$",
+      "description": "A local path inside assets/projects/. The build validator also checks that the file exists and has a supported extension."
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "description",
+        "category",
+        "platform",
+        "technologies",
+        "media",
+        "featured",
+        "order"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "maxLength": 60,
+          "description": "Unique kebab-case identifier; also use it for the project's folder name."
+        },
+        "title": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "description": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 600
+        },
+        "role": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 180,
+          "description": "What the portfolio owner personally contributed."
+        },
+        "year": {
+          "type": "integer",
+          "minimum": 1990,
+          "maximum": 2100
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "live",
+            "completed",
+            "in-progress",
+            "archived"
+          ]
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "web",
+            "mobile",
+            "desktop",
+            "backend",
+            "bots",
+            "automation",
+            "other"
+          ]
+        },
+        "platform": {
+          "type": "string",
+          "enum": [
+            "phone",
+            "tablet",
+            "desktop",
+            "web"
+          ]
+        },
+        "technologies": {
+          "type": "array",
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60
+          }
+        },
+        "thumbnail": {
+          "$ref": "#/$defs/assetPath",
+          "description": "Optional local card image. Must be a supported image file."
+        },
+        "media": {
+          "type": "array",
+          "maxItems": 60,
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/imageMedia"
+              },
+              {
+                "$ref": "#/$defs/videoMedia"
+              }
+            ]
+          }
+        },
+        "links": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "properties": {
+            "demo": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://"
+            },
+            "repository": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://"
+            }
+          }
+        },
+        "featured": {
+          "type": "boolean"
+        },
+        "order": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "imageMedia": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "src",
+        "alt"
+      ],
+      "properties": {
+        "type": {
+          "const": "image"
+        },
+        "src": {
+          "$ref": "#/$defs/assetPath"
+        },
+        "alt": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 300
+        },
+        "caption": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        }
+      }
+    },
+    "videoMedia": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "src",
+        "alt"
+      ],
+      "properties": {
+        "type": {
+          "const": "video"
+        },
+        "src": {
+          "$ref": "#/$defs/assetPath"
+        },
+        "alt": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 300
+        },
+        "caption": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "poster": {
+          "$ref": "#/$defs/assetPath",
+          "description": "Optional still image displayed before the video starts."
+        },
+        "captions": {
+          "$ref": "#/$defs/assetPath",
+          "description": "Optional WebVTT subtitle/caption file."
+        },
+        "captionsLanguage": {
+          "type": "string",
+          "pattern": "^[a-z]{2}(?:-[A-Z]{2})?$",
+          "description": "BCP 47 language tag for the WebVTT file; defaults to ar."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["captionsLanguage"]
+          },
+          "then": {
+            "required": ["captions"]
+          }
+        }
+      ]
+    }
+  }
+}

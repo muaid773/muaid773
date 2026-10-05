@@ -1,0 +1,72 @@
+[
+    {
+        "id":"Marketplace-full-system",
+        "title":"منصة متكامله متجر الكتروني متعدد التجار",
+        "description":"نظام متكامل لمنصه متجر الكتروني متعدد التجار. يحتوي على لوحات تحكم وتطبيقات مترابطه, تطبيق ادارة المنصه بشكل كامل, تطبيق لتجار الذين ينشرون منتجاتهم لادارة المنتجات والطلبات والمبيعات ودارة اللوجستية بذكاء بين المنصه - التاجر -والعميل وادارة الماليه بامان وحكمه ودقة",
+        "category": "web",
+        "platform": "web",
+        "year": 2026,
+        "status": "archived",
+        "thumbnail": "assets/projects/project-1/thum.png",
+        "technologies": ["Python", "FastAPI Franework", "NextJs", "Postgresql"],
+        "media": [
+            {
+                "type": "video",
+                "src": "assets/projects/project-1/main-video.mp4",
+                "alt": "جولة قصيرة توضح إضافة صنف ومتابعة الكمية",
+                "caption": "جولة في تدفق إدارة الصنف",
+                "poster": "assets/projects/project-1/poster.png"
+            }
+        ]
+    },
+    {
+        "id":"Employees-office-system",
+        "title":"نظام مكتب توظيف",
+        "description": "نظام متكامل يساعد مكاتب التوضيف على ادارة الشركات والمتقدمين والمتابعات. ,وادارة اليرادات والمصورفات, ايضا تقارير ذكيه واحترافية. ايضا يحتوي على نظام ادارة الصلاحيات المدمج من django لعمل ادوار مختلفه حسب الدور موظف مشرف وغيره",
+        "category": "web",
+        "platform": "web",
+        "year": 2026,
+        "status": "archived",
+        "thumbnail": "assets/projects/project-2/thum.png",
+        "technologies": ["Python", "Django Franework", "html - css - js"],
+        "media": [
+            {
+                "type": "video",
+                "src": "assets/projects/project-2/main-video.mp4",
+                "alt": "جولة قصيرة توضح إضافة صنف ومتابعة الكمية",
+                "caption": "جولة في تدفق إدارة الصنف",
+                "poster": "assets/projects/project-2/poster.png"
+            }
+        ],
+        "links": {
+            "repository": "https://github.com/muaid773/sarajsoft-emp-system.git"
+        },
+        "featured": false,
+        "order": 1
+    },
+    {
+        "id":"mobiles-fixer-tool",
+        "title":"اداة برمجة وصيانه الهواتف",
+        "description": "برنامج سطح مكتب عبارة عن واجهه وحاكيه لادوات صيانه الهواتف المشهورة",
+        "category": "desktop",
+        "platform": "desktop",
+        "year": 2026,
+        "status": "archived",
+        "thumbnail": "assets/projects/project-3/thum.png",
+        "technologies": ["Python", "tkinter"],
+        "media": [
+            {
+                "type": "video",
+                "src": "assets/projects/project-3/main-video.mp4",
+                "alt": "جولة قصيرة توضح إضافة صنف ومتابعة الكمية",
+                "caption": "جولة في تدفق إدارة الصنف",
+                "poster": "assets/projects/project-3/poster.png"
+            }
+        ],
+        "links": {
+            "repository": "https://github.com/muaid773/mobile-fixer.git"
+        },
+        "featured": false,
+        "order": 1
+    }
+]
